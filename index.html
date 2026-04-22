@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日语能力自测系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #fff5f5 0%, #fafafa 100%);
+            min-height: 100vh;
+            color: #424242;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0 30px;
+            border-bottom: 2px solid #E57373;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            color: #E57373;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            color: #757575;
+            font-size: 1rem;
+        }
+
+        .section-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .section-tab {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: #757575;
+        }
+
+        .section-tab:hover {
+            background: #ffebee;
+            border-color: #E57373;
+            color: #E57373;
+        }
+
+        .section-tab.active {
+            background: #E57373;
+            border-color: #E57373;
+            color: white;
+        }
+
+        .section-tab.completed {
+            border-color: #4CAF50;
+        }
+
+        .section-tab .check {
+            margin-left: 5px;
+            color: #4CAF50;
+        }
+
+        .quiz-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .quiz-title {
+            font-size: 1.2rem;
+            color: #E57373;
+            font-weight: 600;
+        }
+
+        .quiz-progress {
+            font-size: 0.9rem;
+            color: #757575;
+            background: #f5f5f5;
+            padding: 5px 15px;
+            border-radius: 15px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            line-height: 2;
+            text-align: center;
+        }
+
+        .underline {
+            color: #E57373;
+            font-weight: 700;
+            text-decoration: underline;
+            text-decoration-color: #E57373;
+            text-underline-offset: 4px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 500px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option {
+            padding: 15px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option:hover {
+            border-color: #E57373;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(229, 115, 115, 0.2);
+        }
+
+        .option.selected {
+            border-color: #E57373;
+            background: #ffebee;
+        }
+
+        .option.correct {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .option.wrong {
+            border-color: #F44336;
+            background: #ffebee;
+        }
+
+        .option.show-correct {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .option.selected .option-letter {
+            background: #E57373;
+            color: white;
+        }
+
+        .option.correct .option-letter {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .option.wrong .option-letter {
+            background: #F44336;
+            color: white;
+        }
+
+        .option.show-correct .option-letter {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .option-text {
+            flex: 1;
+        }
+
+        .option-icon {
+            font-size: 1.2rem;
+            margin-left: auto;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .nav-btn.primary {
+            background: #E57373;
+            color: white;
+        }
+
+        .nav-btn.primary:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(229, 115, 115, 0.4);
+        }
+
+        .nav-btn.secondary {
+            background: #757575;
+            color: white;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #616161;
+        }
+
+        .nav-btn:disabled {
+            background: #e0e0e0;
+            color: #9e9e9e;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-section {
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            text-align: center;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            color: #E57373;
+            margin-bottom: 20px;
+        }
+
+        .result-score {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #E57373;
+            margin: 20px 0;
+        }
+
+        .result-message {
+            font-size: 1.1rem;
+            color: #757575;
+            margin-bottom: 30px;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .result-item-label {
+            font-size: 0.9rem;
+            color: #757575;
+            margin-bottom: 5px;
+        }
+
+        .result-item-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #424242;
+        }
+
+        .result-item-value.good {
+            color: #4CAF50;
+        }
+
+        .result-item-value.warning {
+            color: #FF9800;
+        }
+
+        .result-item-value.bad {
+            color: #F44336;
+        }
+
+        .restart-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: #64B5F6;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .restart-btn:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(100, 181, 246, 0.4);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #424242;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #9e9e9e;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>日本語能力 自己テスト</h1>
+            <p>日语能力自测系统 - 检验您的日语水平</p>
+        </header>
+
+        <div class="section-tabs" id="sectionTabs"></div>
+
+        <div id="quizArea">
+            <div class="quiz-card fade-in" id="quizCard">
+                <div class="quiz-header">
+                    <span class="quiz-title" id="quizTitle"></span>
+                    <span class="quiz-progress" id="quizProgress"></span>
+                </div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="options"></div>
+                <div class="navigation">
+                    <button class="nav-btn secondary" id="prevBtn" onclick="prevQuestion()">上一题</button>
+                    <button class="nav-btn primary" id="nextBtn" onclick="nextQuestion()">下一题</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultArea" class="result-section hidden">
+            <div class="result-card fade-in">
+                <h2 class="result-title">テスト完了！</h2>
+                <div class="result-score" id="totalScore"></div>
+                <p class="result-message" id="resultMessage"></p>
+                <div class="result-details" id="resultDetails"></div>
+                <button class="restart-btn" onclick="restartQuiz()">重新开始</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>Designed for Japanese Learning</p>
+        </footer>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                section: "一",
+                title: "选出划线部分日语汉字的正确读音",
+                questions: [
+                    { id: 1, text: '危険度が <span class="underline">高い</span> 。', options: ["たかい", "ひくい", "さむい", "あつい"], answer: "A" },
+                    { id: 2, text: '<span class="underline">添付</span> の画像を再送します。', options: ["てじな", "てんぷ", "てんき", "でんき"], answer: "B" },
+                    { id: 3, text: '<span class="underline">会議</span> で検討します。', options: ["かいふ", "がいぶ", "かいき", "かいぎ"], answer: "D" },
+                    { id: 4, text: '<span class="underline">出身</span> はどちらですか。', options: ["しゃちょう", "しゅじん", "しゅっしん", "しゅにん"], answer: "C" },
+                    { id: 5, text: '<span class="underline">納期</span> はいつですか。', options: ["のうき", "のうみん", "のうひん", "のうりょく"], answer: "A" },
+                    { id: 6, text: '彼は <span class="underline">授業</span> 中です。', options: ["しゅっしん", "しゅっちょう", "じゅぎょう", "さぎょう"], answer: "C" },
+                    { id: 7, text: '<span class="underline">種類</span> はあまり多くありません。', options: ["しゅるい", "るいべつ", "きしゅ", "るいひ"], answer: "A" },
+                    { id: 8, text: '検索結果を <span class="underline">出力</span> する。', options: ["にゅうりょく", "しゅつりょく", "しゅっちょう", "けいた"], answer: "B" },
+                    { id: 9, text: 'お <span class="underline">仕事</span> は何ですか。', options: ["すうじ", "しごと", "くじ", "びじん"], answer: "B" },
+                    { id: 10, text: '定数と <span class="underline">変数</span>', options: ["てんしょく", "すうじ", "かんすう", "へんすう"], answer: "D" },
+                    { id: 11, text: '<span class="underline">仕様書</span> を更新する。', options: ["しょうめいしょ", "せっけいしょ", "しようしょ", "せつめいしょ"], answer: "C" },
+                    { id: 12, text: 'それは第３条に <span class="underline">該当</span> する。', options: ["とうがい", "ばしょ", "がいとう", "へんかん"], answer: "C" },
+                    { id: 13, text: '<span class="underline">下記</span> の通り', options: ["かさ", "とおり", "となり", "かき"], answer: "D" },
+                    { id: 14, text: '<span class="underline">戻り値</span> の別名はリターン値です。', options: ["とりち", "もどりち", "もちかえり", "もどり"], answer: "B" },
+                    { id: 15, text: 'それは、 <span class="underline">次</span> の会議で発表します。', options: ["まえ", "くつ", "つき", "つぎ"], answer: "D" }
+                ]
+            },
+            {
+                section: "二",
+                title: "选出划线部分假名对应的日语当用汉字",
+                questions: [
+                    { id: 1, text: '次年度 <span class="underline">いこう</span> 。', options: ["以降", "以上", "明日", "昨日"], answer: "A" },
+                    { id: 2, text: '<span class="underline">しんちょく</span> は遅いです。', options: ["新進", "新聞", "新宿", "進捗"], answer: "D" },
+                    { id: 3, text: '<span class="underline">ようけん</span> 定義。', options: ["要約", "対策", "要件", "予定"], answer: "C" },
+                    { id: 4, text: '<span class="underline">ていすう</span> 不足', options: ["数日", "変化", "変数", "定数"], answer: "D" },
+                    { id: 5, text: '信号 <span class="underline">むし</span>', options: ["無視", "無駄", "無理", "規模"], answer: "A" },
+                    { id: 6, text: 'ボタンを <span class="underline">おす</span> 。', options: ["按す", "押す", "消す", "探す"], answer: "B" },
+                    { id: 7, text: '検索結果を <span class="underline">しゅつりょく</span> する。', options: ["出力", "入学", "入力", "入社"], answer: "A" },
+                    { id: 8, text: 'システム開発の <span class="underline">いらい</span> がきました。', options: ["いもい", "いあい", "いらい", "いけい"], answer: "C" },
+                    { id: 9, text: '関連 <span class="underline">じょうほう</span>。', options: ["関係", "情報", "先頭", "連絡"], answer: "B" },
+                    { id: 10, text: '<span class="underline">くわしい</span> 仕様書。', options: ["涼しい", "優しい", "新しい", "詳しい"], answer: "D" }
+                ]
+            },
+            {
+                section: "三",
+                title: "选出下列单词的汉语意思",
+                questions: [
+                    { id: 1, text: 'ロック', options: ["锁定", "文档", "内部网", "网上邻居"], answer: "A" },
+                    { id: 2, text: 'モジュール', options: ["日程", "完整性", "模块", "合理性"], answer: "C" },
+                    { id: 3, text: 'サイクル', options: ["记录", "编码", "编辑", "周期"], answer: "D" },
+                    { id: 4, text: 'キャンセル', options: ["取消", "取得", "负责", "管理"], answer: "A" },
+                    { id: 5, text: '要件', options: ["常量", "需求", "引领", "变量"], answer: "B" },
+                    { id: 6, text: 'ユーザーインターフェース', options: ["用户界面", "字体界面", "程序界面", "目录界面"], answer: "A" },
+                    { id: 7, text: 'フォルダ', options: ["因特网", "网络", "测试", "文件夹"], answer: "D" },
+                    { id: 8, text: 'プログラミング', options: ["检索", "字体", "功能", "编程"], answer: "D" },
+                    { id: 9, text: 'バージョン', options: ["版本", "程序", "任务", "数据库"], answer: "A" },
+                    { id: 10, text: 'セット', options: ["宣言", "成员", "市场营销", "设置"], answer: "D" },
+                    { id: 11, text: 'システム', options: ["网站", "系统", "编程", "密码"], answer: "B" },
+                    { id: 12, text: 'ソース', options: ["源码", "传真", "字段", "天线"], answer: "A" },
+                    { id: 13, text: 'テスト', options: ["测试", "技能", "光标栏", "宽带"], answer: "A" },
+                    { id: 14, text: 'アイコン', options: ["程序", "模板", "团队", "图标"], answer: "D" },
+                    { id: 15, text: 'レビュー', options: ["开发", "审查", "硬件", "源码"], answer: "B" },
+                    { id: 16, text: 'サーバー', options: ["服务器", "在线", "代码", "编码"], answer: "A" },
+                    { id: 17, text: 'テーブル', options: ["网页", "确认", "系统", "表格"], answer: "D" },
+                    { id: 18, text: 'ディレクトリ', options: ["用户", "字体", "喜欢", "目录"], answer: "D" },
+                    { id: 19, text: 'モバイル', options: ["数据", "移动通讯", "任务", "图表"], answer: "B" },
+                    { id: 20, text: 'セット', options: ["宣言", "成员", "市场营销", "设置"], answer: "D" }
+                ]
+            },
+            {
+                section: "四",
+                title: "根据题意选出正确的答案",
+                questions: [
+                    { id: 1, text: '李さん（　　）東芝の社員です。', options: ["は", "の", "に", "を"], answer: "A" },
+                    { id: 2, text: 'これはC言語（　　）本です。', options: ["も", "と", "から", "の"], answer: "D" },
+                    { id: 3, text: 'それは　仕様書（しようしょ）（　　）ありません。', options: ["よね", "じゃ", "にも", "のは"], answer: "B" },
+                    { id: 4, text: '「今日はあまり(　 　)ですね。」　「お是啊。」', options: ["あつい", "あつく", "あつくあい", "あつかった"], answer: "A" },
+                    { id: 5, text: '空（そら）が　（　　）から、写真（しゃしん）を撮（と）ります。', options: ["きれい", "きれいです", "きれいで", "きれいに"], answer: "C" },
+                    { id: 6, text: 'わたしは日本語が（　　）です。', options: ["暇", "丈夫", "下手", "便利"], answer: "C" },
+                    { id: 7, text: '「原田さんの子供（こども）は、（　　）ですか。」「３歳です。」', options: ["いくつ", "どちら", "だれ", "どの"], answer: "A" },
+                    { id: 8, text: 'そのパソコンは　わたし（　　）です。', options: ["も", "は", "お", "の"], answer: "D" },
+                    { id: 9, text: 'あのスーパーの野菜は、（　　）ないです。', options: ["安く", "安い", "安くて", "安かった"], answer: "B" },
+                    { id: 10, text: '水曜日から金曜日（　　）は出張です。', options: ["ほど", "から", "が", "まで"], answer: "D" },
+                    { id: 11, text: '先週のゴールデンウイークは　休み　　。', options: ["だ", "でした", "です", "ではありません"], answer: "B" },
+                    { id: 12, text: '研修は来週（らいしゅう）の月曜日　　です。', options: ["より", "から", "も", "は"], answer: "B" },
+                    { id: 13, text: 'このテストの問題（もんだい）は　　です。', options: ["広い", "白い", "難しい", "狭い"], answer: "C" },
+                    { id: 14, text: 'リーダー　　開発チームを管理します。', options: ["どなた", "だれ", "どちら", "として"], answer: "D" },
+                    { id: 15, text: 'あの背（せ）　　高い人　は、吉田課長（よしだ　かちょう）です。', options: ["が", "も", "に", "と"], answer: "A" }
+                ]
+            },
+            {
+                section: "五",
+                title: "根据题意选出和句子中划线单词含义相近的选项",
+                questions: [
+                    { id: 1, text: '今回のテストは <span class="underline">やさしい</span> です。（易しい）', options: ["嫌い", "簡単", "有名", "不便"], answer: "B" },
+                    { id: 2, text: '昨日は <span class="underline">ちょっと</span> 寒かったです。', options: ["ほうとんに", "どうも", "すこし", "ほとんど"], answer: "C" },
+                    { id: 3, text: '今日は <span class="underline">たいへん</span> 疲（つか）れたです。', options: ["まだ", "すこし", "ときどき", "とても"], answer: "D" },
+                    { id: 4, text: '私は肉が <span class="underline">きらい</span> です。', options: ["有名です", "にぎやかです", "すきじゃありません", "きれいじゃありません"], answer: "C" },
+                    { id: 5, text: '王さんの <span class="underline">お父さんのお兄さん</span> は日本語の教師（きょうし）です。', options: ["おばあさん", "おばさん", "おじいさん", "おじさん"], answer: "D" }
+                ]
+            }
+        ];
+
+        let currentSection = 0;
+        let currentQuestion = 0;
+        let userAnswers = {};
+
+        function init() {
+            renderSectionTabs();
+            renderQuestion();
+        }
+
+        function renderSectionTabs() {
+            const tabsContainer = document.getElementById('sectionTabs');
+            tabsContainer.innerHTML = quizData.map((section, index) => {
+                const completedCount = section.questions.filter(q => userAnswers[`${index}-${q.id}`]).length;
+                const isCompleted = completedCount === section.questions.length;
+                const isActive = index === currentSection;
+                return `
+                    <div class="section-tab ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}" 
+                         onclick="switchSection(${index})">
+                        第${section.section}部分
+                        ${isCompleted ? '<span class="check">✓</span>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchSection(index) {
+            currentSection = index;
+            currentQuestion = 0;
+            userAnswers = {};
+            renderSectionTabs();
+            renderQuestion();
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('quizArea').classList.remove('hidden');
+        }
+
+        function renderQuestion() {
+            const section = quizData[currentSection];
+            const question = section.questions[currentQuestion];
+            
+            document.getElementById('quizTitle').textContent = `第${section.section}部分：${section.title}`;
+            document.getElementById('quizProgress').textContent = `${currentQuestion + 1} / ${section.questions.length}`;
+            document.getElementById('questionText').innerHTML = question.text;
+            
+            const optionsContainer = document.getElementById('options');
+            const letters = ['A', 'B', 'C', 'D'];
+            
+            optionsContainer.innerHTML = question.options.map((option, index) => {
+                const letter = letters[index];
+                const answerKey = `${currentSection}-${question.id}`;
+                const isSelected = userAnswers[answerKey] === letter;
+                return `
+                    <div class="option ${isSelected ? 'selected' : ''}" 
+                         onclick="selectOption('${letter}')" 
+                         id="option-${letter}">
+                        <span class="option-letter">${letter}</span>
+                        <span class="option-text">${option}</span>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+            
+            if (currentQuestion === section.questions.length - 1) {
+                document.getElementById('nextBtn').textContent = '查看结果';
+                document.getElementById('nextBtn').onclick = showResults;
+            } else {
+                document.getElementById('nextBtn').textContent = '下一题';
+                document.getElementById('nextBtn').onclick = nextQuestion;
+            }
+
+            const quizCard = document.getElementById('quizCard');
+            quizCard.classList.remove('fade-in');
+            void quizCard.offsetWidth;
+            quizCard.classList.add('fade-in');
+        }
+
+        function selectOption(letter) {
+            const section = quizData[currentSection];
+            const question = section.questions[currentQuestion];
+            const answerKey = `${currentSection}-${question.id}`;
+            
+            userAnswers[answerKey] = letter;
+            
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.getElementById(`option-${letter}`).classList.add('selected');
+            
+            renderSectionTabs();
+        }
+
+        function nextQuestion() {
+            const section = quizData[currentSection];
+            if (currentQuestion < section.questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizArea').classList.add('hidden');
+            document.getElementById('resultArea').classList.remove('hidden');
+            
+            let totalCorrect = 0;
+            let totalQuestions = 0;
+            const sectionResults = [];
+            
+            quizData.forEach((section, sectionIndex) => {
+                let sectionCorrect = 0;
+                section.questions.forEach(q => {
+                    totalQuestions++;
+                    const answerKey = `${sectionIndex}-${q.id}`;
+                    if (userAnswers[answerKey] === q.answer) {
+                        totalCorrect++;
+                        sectionCorrect++;
+                    }
+                });
+                sectionResults.push({
+                    name: `第${section.section}部分`,
+                    correct: sectionCorrect,
+                    total: section.questions.length
+                });
+            });
+            
+            const percentage = Math.round((totalCorrect / totalQuestions) * 100);
+            document.getElementById('totalScore').textContent = `${percentage}%`;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = '素晴らしい！您的日语能力非常出色！';
+            } else if (percentage >= 70) {
+                message = 'よくできました！继续保持！';
+            } else if (percentage >= 50) {
+                message = 'まあまあですね。もう少し頑張りましょう！';
+            } else {
+                message = '引き続き頑張ってください！';
+            }
+            document.getElementById('resultMessage').textContent = message;
+            
+            const detailsContainer = document.getElementById('resultDetails');
+            detailsContainer.innerHTML = sectionResults.map(result => {
+                const sectionPercent = Math.round((result.correct / result.total) * 100);
+                let className = 'good';
+                if (sectionPercent < 50) className = 'bad';
+                else if (sectionPercent < 70) className = 'warning';
+                
+                return `
+                    <div class="result-item">
+                        <div class="result-item-label">${result.name}</div>
+                        <div class="result-item-value ${className}">${result.correct}/${result.total}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            const resultCard = document.querySelector('.result-card');
+            resultCard.classList.remove('fade-in');
+            void resultCard.offsetWidth;
+            resultCard.classList.add('fade-in');
+        }
+
+        function restartQuiz() {
+            currentSection = 0;
+            currentQuestion = 0;
+            userAnswers = {};
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('quizArea').classList.remove('hidden');
+            renderSectionTabs();
+            renderQuestion();
+        }
+
+        init();
+    </script>
+</body>
+</html>
